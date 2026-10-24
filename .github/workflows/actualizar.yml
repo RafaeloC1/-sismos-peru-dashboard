@@ -1,36 +1,38 @@
 name: Actualizar sismos
+
 on:
-schedule:
-- cron: '17 11 * * *' # 06:17 hora de Lima
-- cron: '17 23 * * *' # 18:17 hora de Lima
-workflow_dispatch: # permite ejecutarlo a mano
+  schedule:
+    - cron: '17 11 * * *'
+    - cron: '17 23 * * *'
+  workflow_dispatch:
+
 permissions:
-contents: write # necesario para guardar el CSV en el
-repositorio
+  contents: write
+
 concurrency:
-group: actualizar-sismos
-cancel-in-progress: false
+  group: actualizar-sismos
+  cancel-in-progress: false
+
 jobs:
-actualizar:
-runs-on: ubuntu-latest
-timeout-minutes: 10
-steps:
-- uses: actions/checkout@v6
-- uses: actions/setup-python@v6
-with:
-python-version: '3.12'
-cache: pip
-- run: pip install -r requirements.txt
-- run: python scripts/descargar_sismos.py
-- name: Guardar cambios
-run: |
-git config user.name 'github-actions[bot]'
-git config user.email '41898282+githubactions[bot]@users.noreply.github.com'
-git add data/
-if git diff --cached --quiet; then
-echo 'Sin cambios'
-else
-git commit -m "Actualización automática $(date -u +'%Y-%m-%d
-%H:%M UTC')"
-git push
-fi
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python scripts/descargar_sismos.py
+      - name: Guardar cambios
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/
+          if git diff --cached --quiet; then
+            echo 'Sin cambios'
+          else
+            git commit -m "Actualizacion automatica $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
